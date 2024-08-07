@@ -5,5 +5,9 @@ The goal of this project is to build a web application that enables users to per
 # Key Features
 
 1-Data Analysis (data_analysis.py)
+
+
 2-Forecasting Models(arima_model.py)
+
+
 3-Reporting and GPT-3 Enhanced Analysis(reporting.py)
