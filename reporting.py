@@ -5,8 +5,7 @@ from utils import get_stock_data, stocks
 import os
 from dotenv import load_dotenv
 
-# API anahtarını alın
-api_key = os.getenv('OPENAI_API_KEY')
+api_key='YOUR_API_KEY'
 
 # OpenAI API anahtarınızı buraya ekleyin
 client = OpenAI(api_key=api_key)
