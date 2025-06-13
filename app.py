@@ -3,14 +3,13 @@ from data_analysis import show_data_analysis
 from arima_model import show_arima_model, linear_regression
 from reporting import show_reporting
 
-st.set_page_config(layout="wide")  # Sayfa genişliğini tam genişlik olarak ayarlar
+st.set_page_config(layout="wide") 
 
-# Yan panel için stil
 st.markdown(
     """
     <style>
     .sidebar .sidebar-content {
-        background-color: #f0f0f0; /* Arka plan rengini istediğiniz renk koduna değiştirin */
+        background-color: #f0f0f0; /* Change background color as you like */
     }
     </style>
     """,
@@ -20,70 +19,75 @@ def load_css():
     css = """
     <style>
         html, body, [data-testid="stAppViewContainer"] {
-            background-color: white;  /* Arka plan rengi */
-            color: #000000;            /* Metin rengi */
+            background-color: white;  /* Background color */
+            color: #000000;            /* Text color */
         }
         .css-18e3th9 {
-            padding: 0px 16px;         /* İçerik padding ayarı */
+            padding: 0px 16px;         /* Content padding */
         }
         .css-1d391kg {
-            background-color: #005A5B; /* Sidebar arka plan rengi */
-            color: #FFFFFF;            /* Sidebar metin rengi */
-            font-size: 40px;           /* Font boyutu */
-            text-align: center;        /* Metin ortalama */
+            background-color: #005A5B; /* Sidebar background color */
+            color: #FFFFFF;            /* Sidebar text color */
+            font-size: 40px;           /* Font size */
+            text-align: center;        /* Text alignment */
         }
         .st-bq {
-            margin-bottom: 100px;       /* Menü seçenekleri arası boşluk */
+            margin-bottom: 100px;      /* Spacing between menu options */
         }
         h1 {
-            color: #3F8CCC;            /* Başlık metin rengi */
+            color: #3F8CCC;            /* Heading text color */
         }
         .css-1d391kg .css-bjfvzt {
-            font-size: 50px;           /* Menü seçenekleri yazı boyutu */
-            text-align: center;        /* Menü seçenekleri ortalama */
+            font-size: 50px;           /* Menu options font size */
+            text-align: center;        /* Menu options text alignment */
         }
         .css-1d391kg .css-1v3fvcr {
-            font-size: 60px;           /* Sidebar başlık yazı boyutu */
-            text-align: center;        /* Sidebar başlık ortalama */
+            font-size: 60px;           /* Sidebar header font size */
+            text-align: center;        /* Sidebar header alignment */
         }
         .stSelectbox div[data-baseweb="select"] > div {
-            background-color: #f0f0f0; /* Arka plan rengi */
-            color: #000000; /* Metin rengi */
+            background-color: #f0f0f0; /* Background color */
+            color: #000000;            /* Text color */
         }
         
     </style>
     """
     st.markdown(css, unsafe_allow_html=True)
 
-# CSS'i yükle
+# Load CSS
 load_css()
 
-st.title("Finansal Veri Analizi ve Tahminleme Uygulaması")
-st.sidebar.header("Menü")
+st.title("Financial Data Analysis and Forecasting Application")
+st.sidebar.header("Menu")
 menu = st.sidebar.radio(
-    "Seçenekler",
-    ["Ana Sayfa", "Veri Analizi", "Model Eğitimi ve Tahminleme", "Raporlama"],
-    format_func=lambda x: {"Ana Sayfa": "🏠 Ana Sayfa", "Veri Analizi": "📊 Veri Analizi", "Model Eğitimi ve Tahminleme": "🔍 Model Eğitimi ve Tahminleme", "Raporlama": "📝 Raporlama"}[x]
+    "Options",
+    ["Home", "Data Analysis", "Model Training and Forecasting", "Reporting"],
+    format_func=lambda x: {
+        "Home": "🏠 Home",
+        "Data Analysis": "📊 Data Analysis",
+        "Model Training and Forecasting": "🔍 Model Training and Forecasting",
+        "Reporting": "📝 Reporting"
+    }[x]
 )
 
-if menu == "Ana Sayfa":
+if menu == "Home":
     st.write("""
-    ### Hoşgeldiniz!
-    Bu uygulama finansal veri analizi ve tahminleme işlemleri için geliştirilmiştir. Peki finansal analiz nedir? Finansal analiz, bir şirketin, sektörün ya da projenin finansal durumunu ve performansını değerlendirmek için kullanılan bir dizi yöntem ve süreçtir. Bu analizler, şirketlerin mali tabloları, piyasa trendleri, sektör karşılaştırmaları ve diğer ilgili finansal verileri kullanarak yapılır. Finansal analiz, çeşitli amaçlar için yapılır ve işletmeler ile yatırımcılar için kritik öneme sahiptir.
+    ### Welcome!
+    This application is developed for financial data analysis and forecasting. So, what is financial analysis? Financial analysis is a set of methods and processes used to evaluate the financial condition and performance of a company, sector, or project. These analyses are conducted using company financial statements, market trends, sector comparisons, and other relevant financial data. Financial analysis serves various purposes and is critical for businesses and investors.
     """)
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
-        st.image(r"/Users/esra/Desktop/IST-DSA-PROJECTS/STOCK-PRICE/stock.jpg", caption="Finansal Analiz Grafiği", width=500)
+        st.image(r"/Users/esra/Desktop/IST-DSA-PROJECTS/STOCK-PRICE/stock.jpg", caption="Financial Analysis Chart", width=500)
     st.write("""
-    Finansal analiz, yöneticilere ve karar vericilere, yatırım yapma, finansman sağlama, bütçe ayırma ve diğer mali kararları verme konusunda destek olur. Bu analizler sayesinde, işletmelerin finansal sağlığı ve pazar konumu daha iyi anlaşılır. Şirketlerin geçmiş performansını değerlendirmek ve gelecekteki performansı öngörmek için finansal analizler kullanılır. Bu sayede şirketlerin hangi alanlarda iyileştirme yapması gerektiği belirlenebilir. Şirketler, finansal analiz sonuçlarına dayanarak uzun vadeli iş planları ve stratejiler geliştirebilir. Bu planlar, şirketin sürdürülebilir büyümesini ve rekabet avantajını korumasını sağlar. Potansiyel riskleri ve sorunları önceden belirleme imkanı sağlar. Bu sayede şirketler, olası mali krizlere karşı önlem alabilir.
+    Financial analysis supports managers and decision-makers in making investment decisions, securing financing, allocating budgets, and other financial choices. Through these analyses, the financial health and market position of businesses are better understood. Financial analyses are used to evaluate a company's past performance and predict future performance. This helps identify areas that require improvement. Based on financial analysis results, companies can develop long-term business plans and strategies. These plans ensure sustainable growth and maintain competitive advantage. They also allow early identification of potential risks and issues, enabling companies to take precautions against possible financial crises.
     """)
-elif menu == "Veri Analizi":
+    
+elif menu == "Data Analysis":
     show_data_analysis()
 
-elif menu == "Model Eğitimi ve Tahminleme":
+elif menu == "Model Training and Forecasting":
     linear_regression()
     show_arima_model()
 
-elif menu == "Raporlama":
+elif menu == "Reporting":
     show_reporting()
-    

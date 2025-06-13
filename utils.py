@@ -69,7 +69,6 @@ def plot_moving_average(data, window):
     plt.plot(data['Close'], label='Close Price')
     plt.plot(data['Moving Average'], label=f'{window}-Day Moving Average')
     plt.legend()
-    st.pyplot(plt)
-    
+    st.pyplot(plt)   
 
 

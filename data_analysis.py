@@ -4,46 +4,48 @@ from utils import get_stock_data, stocks, plot_moving_average
 import plotly.graph_objs as go
 
 def show_data_analysis():
-    st.write("### Veri Analizi")
-    stock_name = st.selectbox("Lütfen analiz etmek istediğiniz hisse senedini seçin:", list(stocks.keys()))
+    st.write("### Data Analysis")
+    stock_name = st.selectbox("Please select the stock you want to analyze:", list(stocks.keys()))
     if stock_name:
         symbol = stocks[stock_name]
         data = get_stock_data(symbol)
         if data is not None:
-            st.write("### Yüklenen Veri")
-            #Burada tabloda maksimum degerler renklendirildi
+            st.write("### Loaded Data")
+            
+            # Highlight maximum values in columns
             def highlight_max(s):
                 '''
-                Sütunun maksimum değerine göre satırları renklendirme
+                Highlight rows based on the maximum value in the column
                 '''
                 is_max = s == s.max()
                 return ['background-color: red' if v else '' for v in is_max]
-            # Veriyi sıralama ve filtreleme
-            #Filtreleme eklendi(open,high,low,close tiklandiginda en yuksel ve en dusuk deger tablonun basinda gosteriliyor.
+            
+            # Sorting and filtering data
+            # Filter applied: only rows where Close price is above 105, sorted by date descending
             sorted_data = data.sort_values(by='Date', ascending=False)
             filtered_data = sorted_data[sorted_data['Close'] > 105]
             styled_data = filtered_data.style.apply(highlight_max, subset=['Open', 'Close', 'Volume'], axis=0)
             st.dataframe(styled_data)
 
-            st.write("### Veri İstatistikleri")
+            st.write("### Data Statistics")
             st.write(data.describe())
-            st.write("### Zaman Serisi Grafiği")
+
+            st.write("### Time Series Chart")
             fig_close = go.Figure()
-            fig_close.add_trace(go.Scatter(x=data.index, y=data['Close'], mode='lines', name='Kapanış Fiyatı'))
+            fig_close.add_trace(go.Scatter(x=data.index, y=data['Close'], mode='lines', name='Close Price'))
             st.plotly_chart(fig_close)
 
-            st.write("### Hacim Grafiği")
+            st.write("### Volume Chart")
             fig_volume = go.Figure()
-            fig_volume.add_trace(go.Bar(x=data.index, y=data['Volume'], name='Hacim'))
+            fig_volume.add_trace(go.Bar(x=data.index, y=data['Volume'], name='Volume'))
             st.plotly_chart(fig_volume)
             
-            st.write("### Hareketli Ortalama Hesaplama")
-            window = st.slider("Hareketli Ortalama Süresi (Gün)", min_value=1, max_value=50, value=20)
+            st.write("### Moving Average Calculation")
+            window = st.slider("Moving Average Window (Days)", min_value=1, max_value=50, value=20)
             plot_moving_average(data, window)
             
-            #MACD, RSI, BOLLINGER ICIN INDICATOR
-            st.write("### Gösterge Seçimi")
-            indicator = st.selectbox("Lütfen analiz etmek istediğiniz göstergeleri seçin:", ["MACD", "RSI", "BOLLINGER"])
+            st.write("### Indicator Selection")
+            indicator = st.selectbox("Please select the indicator you want to analyze:", ["MACD", "RSI", "BOLLINGER"])
             
             def plot_macd(data):
                 exp1 = data['Close'].ewm(span=12, adjust=False).mean()
@@ -64,7 +66,7 @@ def show_data_analysis():
                 fig_gauge = go.Figure(go.Indicator(
                     mode="gauge+number",
                     value=latest_macd,
-                    title={'text': "MACD Değeri"},
+                    title={'text': "MACD Value"},
                     gauge={
                         'axis': {'range': [-5, 5]},
                         'steps': [
@@ -76,22 +78,22 @@ def show_data_analysis():
                             'value': latest_macd}}))
                 st.plotly_chart(fig_gauge)
                 
-                # Al/Sat önerisi
+                # Buy/Sell recommendation
                 if latest_macd > latest_signal:
-                    recommendation = "AL"
+                    recommendation = "BUY"
                     recommendation_color = "green"
                 else:
-                    recommendation = "SAT"
+                    recommendation = "SELL"
                     recommendation_color = "red"
 
-                st.write(f"### Öneri: {recommendation}")
+                st.write(f"### Recommendation: {recommendation}")
 
                 fig_recommendation = go.Figure(go.Indicator(
                     mode="number+delta",
                     value=latest_macd,
                     number={'prefix': f"{recommendation} - "},
                     delta={'position': "top", 'reference': latest_signal},
-                    title={"text": "Al/Sat Önerisi"},
+                    title={"text": "Buy/Sell Signal"},
                     domain={'x': [0, 1], 'y': [0, 1]}
                 ))
                 fig_recommendation.update_layout(
@@ -119,24 +121,23 @@ def show_data_analysis():
                 # RSI gauge chart
                 latest_rsi = rsi.iloc[-1]
 
-                # Öneri belirleme
+                # Recommendation logic
                 if latest_rsi > 70:
-                    recommendation = "SAT"
+                    recommendation = "SELL"
                     recommendation_color = "red"
                 elif latest_rsi < 30:
-                    recommendation = "AL"
+                    recommendation = "BUY"
                     recommendation_color = "green"
                 else:
-                    recommendation = "BEKLE"
+                    recommendation = "HOLD"
                     recommendation_color = "yellow"
 
-                st.write(f"### Öneri: {recommendation}")
+                st.write(f"### Recommendation: {recommendation}")
 
-                # Gauge chart oluşturma
                 fig_recommendation = go.Figure(go.Indicator(
                     mode="gauge+number",
                     value=latest_rsi,
-                    title={"text": "RSI Önerisi"},
+                    title={"text": "RSI Recommendation"},
                     gauge={
                         'axis': {'range': [0, 100]},
                         'steps': [
@@ -177,29 +178,28 @@ def show_data_analysis():
                 fig.update_layout(title='Bollinger Bands', xaxis_title='Date', yaxis_title='Price')
                 st.plotly_chart(fig)
 
-                # Bollinger Bandı gauge chart
+                # Bollinger Bands gauge chart
                 latest_close = data['Close'].iloc[-1]
                 latest_upper_band = upper_band.iloc[-1]
                 latest_lower_band = lower_band.iloc[-1]
 
-                # Öneri belirleme
+                # Recommendation logic
                 if latest_close > latest_upper_band:
-                    recommendation = "SAT"
+                    recommendation = "SELL"
                     recommendation_color = "red"
                 elif latest_close < latest_lower_band:
-                    recommendation = "AL"
+                    recommendation = "BUY"
                     recommendation_color = "green"
                 else:
-                    recommendation = "BEKLE"
+                    recommendation = "HOLD"
                     recommendation_color = "yellow"
 
-                st.write(f"### Öneri: {recommendation}")
+                st.write(f"### Recommendation: {recommendation}")
 
-                # Gauge chart oluşturma
                 fig_recommendation = go.Figure(go.Indicator(
                     mode="gauge+number",
                     value=latest_close,
-                    title={"text": "Bollinger Bandı Önerisi"},
+                    title={"text": "Bollinger Bands Recommendation"},
                     gauge={
                         'axis': {'range': [latest_lower_band, latest_upper_band]},
                         'steps': [
@@ -221,13 +221,13 @@ def show_data_analysis():
                 st.plotly_chart(fig_recommendation)
 
             if indicator == "MACD":
-                st.write("### MACD Grafiği")
+                st.write("### MACD Chart")
                 plot_macd(data)
             elif indicator == "RSI":
-                st.write("### RSI Grafiği")
+                st.write("### RSI Chart")
                 plot_rsi(data)
             elif indicator == "BOLLINGER":
-                st.write("### Bollinger Bantları Grafiği")
+                st.write("### Bollinger Bands Chart")
                 plot_bollinger_bands(data)
-            else:
-                st.write("Veri alınamadı. Lütfen geçerli bir sembol seçin.")
+        else:
+            st.write("Data not available. Please select a valid symbol.")
